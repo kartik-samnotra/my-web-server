@@ -1,0 +1,13 @@
+{
+  "name": "simple-web-server",
+  "version": "1.0.0",
+  "description": "A simple web server built with Node.js",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["web-server", "nodejs", "http"],
+  "author": "Your Name",
+  "license": "MIT"
+}
