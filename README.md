@@ -1,13 +1,83 @@
-🌐 Simple Node.js Web Server
-This project is a minimal, yet fully functional, web server built using Node.js and its built-in http and fs modules. It demonstrates core web development concepts, including modular routing, asynchronous file serving, and proper HTTP error handling.🚀 Project OverviewThe server is designed to handle multiple defined routes (/, /home, /about, /contact), serve static HTML content, and include styling from an external CSS file. It is configured to run on port 3000.🏗️ ArchitectureThe server follows a classic request-response model, utilizing Node.js's non-blocking I/O for efficient file serving.Request-Response FlowServer Initialization: The server starts, creates an instance using http.createServer(), and begins listening on port 3000.Request Handling: Upon receiving a request, the server extracts the req.url.Routing System: A switch-based routing system matches the URL path to the corresponding HTML file in the pages/ directory.File Serving Process: Asynchronous file reading (fs.promises) ensures non-blocking I/O for loading HTML and CSS content.Response Generation: Appropriate HTTP status codes (200 OK or 404 Not Found) and content-type headers (text/html or text/css) are set before sending the content back to the client.📁 Project StructureThe project is structured to maintain separation of concerns:my-web-server/
-├── server.js          # Main server file
-├── pages/             # HTML templates for routes
-│   ├── home.html
-│   ├── about.html
-│   ├── contact.html
-│   └── 404.html
-├── styles/            # CSS stylesheets
-│   └── style.css
-└── package.json       # Project configuration (optional for this simple project)
-🛣️ Route ConfigurationURL PathHTML FileHTTP StatusDescription/home.html200 OKHome page (root route)/homehome.html200 OKHome page/aboutabout.html200 OKAbout page/contactcontact.html200 OKContact page/styles/style.cssstyle.css200 OKCSS stylesheetAny other route404.html404 Not FoundCustom error page⚡ Key FeaturesModular Design: Separate concerns with dedicated directories for pages and styles.Asynchronous Operations: Leverages fs.promises for non-blocking file I/O, ensuring better performance.Proper HTTP Standards: Correct status codes (200, 404) and Content-Type headers are used.Error Handling: Implements a custom 404 page for invalid routes and graceful error recovery via try-catch.Static File Serving: CSS files are served dynamically with the correct text/css content type.RESTful Routes: Clean and meaningful URL paths are configured.⚙️ Installation & UsagePrerequisites: Ensure you have Node.js installed on your system.Clone the Repository: (Assume this is a step if the project were in a repo)Start the server:node server.js
-Once the server is running, you can access the routes via a web browser:ActionURLHome:http://localhost:3000/home (or http://localhost:3000/)About:http://localhost:3000/aboutContact:http://localhost:3000/contact404 Test:http://localhost:3000/invalid-route📝 Technical DetailsDetailValuePort3000ProtocolHTTPStylingExternal CSS (style.css)File SystemAsynchronous operations (fs.promises)Error HandlingComprehensive try-catch blocks🧪 Testing the ServerValid Routes Test: Access /home, /about, /contact—should return a 200 OK status and display the styled HTML content.Invalid Route Test: Access any undefined route—should return a 404 Not Found status and display the custom 404 page.Static Files Test: Verify that the CSS styling is applied correctly to all pages.Root Route Test: Access /—should correctly serve the home page content.
+# 🌐 Simple Node.js Web Server
+
+This project is a minimal, yet fully functional, web server built using Node.js and its built-in **http** and **fs** modules. It demonstrates core web development concepts, including modular routing, asynchronous file serving, and proper HTTP error handling.
+
+---
+
+## 🚀 Project Overview
+
+The server is designed to handle multiple defined routes (`/`, `/home`, `/about`, `/contact`), serve static HTML content, and include styling from an external CSS file. It runs on **port 3000** and follows a clean, modular structure.
+
+---
+
+## 🏗️ Architecture
+
+The server uses a request–response model and Node.js's non-blocking I/O for efficient file serving.
+
+### **Request–Response Flow**
+
+1. **Server Initialization**  
+   The server starts using `http.createServer()` and begins listening on port 3000.
+
+2. **Request Handling**  
+   The server extracts `req.url` from each incoming request.
+
+3. **Routing System**  
+   A switch-based routing system matches URL paths to corresponding HTML templates inside the `pages/` directory.
+
+4. **File Serving Process**  
+   Files are read asynchronously using `fs.promises`, ensuring non-blocking I/O.
+
+5. **Response Generation**  
+   Proper HTTP status codes (`200 OK`, `404 Not Found`) and MIME types (`text/html`, `text/css`) are included in the response headers.
+
+---
+
+## 📁 Project Structure
+my-web-server/
+├── server.js # Main server file
+├── pages/ # HTML templates for routes
+│ ├── home.html
+│ ├── about.html
+│ ├── contact.html
+│ └── 404.html
+├── styles/ # CSS stylesheets
+│ └── style.css
+└── package.json # Project configuration (optional)
+
+
+---
+
+## 🛣️ Route Configuration
+
+| URL Path             | HTML File     | HTTP Status     | Description           |
+|----------------------|---------------|------------------|------------------------|
+| `/`                  | home.html     | 200 OK           | Home page (root)       |
+| `/home`              | home.html     | 200 OK           | Home page              |
+| `/about`             | about.html    | 200 OK           | About page             |
+| `/contact`           | contact.html  | 200 OK           | Contact page           |
+| `/styles/style.css`  | style.css     | 200 OK           | CSS Stylesheet         |
+| Any other route      | 404.html      | 404 Not Found    | Custom error page      |
+
+---
+
+## ⚡ Key Features
+
+- **Modular Design** with separated HTML and CSS directories  
+- **Asynchronous I/O** using `fs.promises`  
+- **Proper HTTP Headers** and status codes  
+- **Custom 404 Page** for invalid routes  
+- **Static File Serving** for CSS  
+- **RESTful-style Routing**
+
+---
+
+## ⚙️ Installation & Usage
+
+### **Prerequisites**
+- Node.js installed on your system
+
+### **Start the Server**
+```bash
+node server.js
+
