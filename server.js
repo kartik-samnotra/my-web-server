@@ -1,143 +1,87 @@
 const http = require('http');
 const fs = require('fs').promises;
 const path = require('path');
+
 const PORT = 3000;
 
-const pagesDir = path.join(__dirname, 'pages');
 
-const stylesDir = path.join(__dirname, 'styles');
 
-async function readHTMLFile(filename) 
+const PAGES = path.join(__dirname, 'pages');
+
+
+const STYLES = path.join(__dirname, 'styles');
+async function servePage(res, filename, status = 200) 
 {
     try 
     {
-        const filePath = path.join(pagesDir, filename);
-        const content = await fs.readFile(filePath, 'utf8');
-        return content;
-
+        const filePath = path.join(PAGES, filename);
+        const html = await fs.readFile(filePath, 'utf8');
+        res.writeHead(status, { 'Content-Type': 'text/html' });
+        res.end(html);
     } 
-    catch (error) 
+    catch 
     {
-        throw new Error(`Cannot read file: ${filename}`);
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Internal Server Error');
     }
-
 }
 
-async function readCSSFile(filename) 
+
+async function serveCSS(res, filename) 
 {
     try 
     {
-        const filePath = path.join(stylesDir, filename);
-        const content = await fs.readFile(filePath, 'utf8');
-        return content;
-    } catch (error) 
-    {
-        throw new Error(`Cannot read CSS file: ${filename}`);
-    }
-}
+        const filePath = path.join(STYLES, filename);
+        const css = await fs.readFile(filePath, 'utf8');
+        res.writeHead(200, { 'Content-Type': 'text/css' });
+        res.end(css);
 
-function getContentType(filePath) 
-{
-    const ext = path.extname(filePath);
-    switch (ext) 
+
+    } catch 
     {
-        case '.css':
-            return 'text/css';
-        case '.js':
-            return 'text/javascript';
-        case '.json':
-            return 'application/json';
-        case '.png':
-            return 'image/png';
-        case '.jpg':
-        case '.jpeg':
-            return 'image/jpeg';
-        default:
-            return 'text/html';
+        servePage(res, '404.html', 404);
+
     }
 }
 
 const server = http.createServer(async (req, res) => 
-    {
-
+{
     const url = req.url;
-    
-    console.log(`Request received: ${url}`);
+    console.log(` → Request: ${url}`);
 
-    try 
-    {
-
-        if (url.startsWith('/styles/')) 
-        {
-            const cssFile = path.basename(url);
-            const cssContent = await readCSSFile(cssFile);
-            res.writeHead(200, { 'Content-Type': 'text/css' });
-            res.end(cssContent);
-            return;
-        }
-
-        let htmlContent;
-        let statusCode = 200;
-
-        switch (url) 
-        {
-            case '/':
-            case '/home':
-                htmlContent = await readHTMLFile('home.html');
-                break;
-            case '/about':
-                htmlContent = await readHTMLFile('about.html');
-                break;
-            case '/contact':
-                htmlContent = await readHTMLFile('contact.html');
-                break;
-            default:
-                htmlContent = await readHTMLFile('404.html');
-                statusCode = 404;
-        }
-
-        res.writeHead(statusCode, { 'Content-Type': 'text/html' });
-        res.end(htmlContent);
-
-    } catch (error) {
-        console.error('Error:', error.message);
-        
-
-        try 
-        {
-            const errorContent = await readHTMLFile('404.html');
-            res.writeHead(404, { 'Content-Type': 'text/html' });
-            res.end(errorContent);
-        } catch 
-        {
-            res.writeHead(500, { 'Content-Type': 'text/plain' });
-            res.end('Internal Server Error');
-        }
+    // Serve CSS files
+    if (url.startsWith('/styles/')) {
+        const styleFile = path.basename(url);
+        return serveCSS(res, styleFile);
     }
 
+    if (url === '/' || url === '/home') {
+        return servePage(res, 'home.html');
+    }
 
+    if (url === '/about') {
+        return servePage(res, 'about.html');
+    }
+
+    if (url === '/contact') {
+        return servePage(res, 'contact.html');
+    }
+    servePage(res, '404.html', 404);
 });
 
-server.listen(PORT, () => 
-{
-    console.log(`Server is running on http://localhost:${PORT}`);
-    console.log('Available routes:');
-    console.log('  - /home');
-    console.log('  - /about');
-    console.log('  - /contact');
-    console.log('Press Ctrl+C to stop the server');
-
-
+server.listen(PORT, () => {
+    console.log(`\nServer running → http://localhost:${PORT}`);
+    console.log('Routes available: /home /about /contact\n');
 });
 
-server.on('error', (error) => {
-    console.error('Server error:', error);
+server.on('error', err => {
+    console.error('Server Error:', err.message);
 });
 
 process.on('SIGINT', () => {
-    console.log('\nShutting down server...');
+    console.log('\nShutting down...');
     server.close(() => {
-        console.log('Server closed');
+        console.log('Server closed ✔');
         process.exit(0);
     });
 });
