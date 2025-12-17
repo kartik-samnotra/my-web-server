@@ -1,87 +1,70 @@
-const http = require('http');
-const fs = require('fs').promises;
-const path = require('path');
+var http = require('http');
+var fs = require('fs');
+var path = require('path');
 
-const PORT = 3000;
-
-
-
-const PAGES = path.join(__dirname, 'pages');
+var PORT = 3000;
 
 
-const STYLES = path.join(__dirname, 'styles');
-async function servePage(res, filename, status = 200) 
-{
-    try 
-    {
-        const filePath = path.join(PAGES, filename);
-        const html = await fs.readFile(filePath, 'utf8');
-        res.writeHead(status, { 'Content-Type': 'text/html' });
-        res.end(html);
-    } 
-    catch 
-    {
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('Internal Server Error');
-    }
-}
-
-
-async function serveCSS(res, filename) 
-{
-    try 
-    {
-        const filePath = path.join(STYLES, filename);
-        const css = await fs.readFile(filePath, 'utf8');
-        res.writeHead(200, { 'Content-Type': 'text/css' });
-        res.end(css);
-
-
-    } catch 
-    {
-        servePage(res, '404.html', 404);
-
-    }
-}
-
-const server = http.createServer(async (req, res) => 
-{
-    const url = req.url;
-    console.log(` → Request: ${url}`);
-
-    // Serve CSS files
-    if (url.startsWith('/styles/')) {
-        const styleFile = path.basename(url);
-        return serveCSS(res, styleFile);
-    }
-
-    if (url === '/' || url === '/home') {
-        return servePage(res, 'home.html');
-    }
-
-    if (url === '/about') {
-        return servePage(res, 'about.html');
-    }
-
-    if (url === '/contact') {
-        return servePage(res, 'contact.html');
-    }
-    servePage(res, '404.html', 404);
-});
-
-server.listen(PORT, () => {
-    console.log(`\nServer running → http://localhost:${PORT}`);
-    console.log('Routes available: /home /about /contact\n');
-});
-
-server.on('error', err => {
-    console.error('Server Error:', err.message);
-});
-
-process.on('SIGINT', () => {
-    console.log('\nShutting down...');
-    server.close(() => {
-        console.log('Server closed ✔');
-        process.exit(0);
+function servePage(pageName, response) {
+    var pagePath = path.join(__dirname, 'pages', pageName);
+    fs.readFile(pagePath, function(err, data) {
+        if (err) {
+            response.writeHead(500, {'Content-Type': 'text/plain'});
+            response.end('Server Error: Could not read page');
+        } else {
+            response.writeHead(200, {'Content-Type': 'text/html'});
+            response.end(data);
+        }
     });
+}
+
+function serve404Page(response) {
+    var notFoundPath = path.join(__dirname, 'pages', '404.html');
+    
+    fs.readFile(notFoundPath, function(err, data) {
+        if (err) {
+            response.writeHead(404, {'Content-Type': 'text/plain'});
+            response.end('404 - Page Not Found');
+
+        } else {
+            response.writeHead(404, {'Content-Type': 'text/html'});
+            response.end(data);
+
+        }
+    });
+}
+
+var server = http.createServer(function(request, response) {
+    var url = request.url;
+    
+    console.log('Requested: ' + url);
+    if (url === '/' || url === '/home') {
+        servePage('home.html', response);
+    } 
+    else if (url === '/about') {
+        servePage('about.html', response);
+    } 
+    else if (url === '/contact') {
+        servePage('contact.html', response);
+    } 
+    else {
+        serve404Page(response);
+    }
+});
+
+server.listen(PORT, function() {
+    console.log('Server has started!');
+    console.log('http://localhost:' + PORT);
+    console.log('  http://localhost:' + PORT + '/home');
+    console.log('  http://localhost:' + PORT + '/about');
+    console.log('  http://localhost:' + PORT + '/contact');
+    console.log('  http://localhost:' + PORT + '/something-else (to see 404 page)');
+});
+
+server.on('error', function(err) {
+    if (err.code === 'EADDRINUSE') {
+        console.log('Port ' + PORT + ' is already in use. Try a different port.');
+    } else {
+        console.log('Server error: ' + err.message);
+    }
 });
